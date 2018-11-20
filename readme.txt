@@ -1,1 +1,0 @@
-This application will aggregate information about weather from different sites to 1 plase.
