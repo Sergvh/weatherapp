@@ -14,7 +14,7 @@ COUNTRIES_TAG = '.png'
 i = 0
 country = ''
 for match in re.finditer(COUNTRIES_TAG, page):
-    if i != 0 and i < 10:
+    if i != 0 and i <= 10:
         country = ''
         for char in page[match.end():]:
             if char != '<':
@@ -26,4 +26,3 @@ for match in re.finditer(COUNTRIES_TAG, page):
     else:
         i += 1
         continue
-
