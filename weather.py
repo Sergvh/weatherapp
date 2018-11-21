@@ -4,6 +4,9 @@ import html
 from urllib.request import urlopen, Request
 
 ACCU_URL = "https://www.accuweather.com/uk/ua/lviv/324561/weather-forecast/324561"
+RP5_URL = ("http://rp5.ua/%D0%9F%D0%BE%D0%B3%D0%BE%D0%B4%D0%B0_%D1%83_"
+          "%D0%9B%D1%8C%D0%B2%D0%BE%D0%B2%D1%96,_%D0%9B%D1%8C%D0%B2%D1%96%D0%"
+          "B2%D1%81%D1%8C%D0%BA%D0%B0_%D0%BE%D0%B1%D0%BB%D0%B0%D1%81%D1%82%D1%8C")
 
 headers = {'User-Agent': 'Mozilla/5.0 (X11; Fedora; Linux x86_64)'}
 
@@ -38,3 +41,49 @@ for char in accu_page[accu_cond_value_start:]:
     else:
         break
 print(f'Condition: {accu_temp}\n')
+
+rp5_request = Request(RP5_URL, headers=headers)
+rp5_page = urlopen(rp5_request).read()
+rp5_page = rp5_page.decode('utf-8')
+
+RP5_CONTAINER_TAG = '<div id="ArchTemp">'
+RP5_TEMP_TAG = '<span class="t_0" style="display: block;">'
+rp5_temp_tag_size = len(RP5_TEMP_TAG)
+rp5_temp_tag_index = rp5_page.find(RP5_TEMP_TAG, rp5_page.find(RP5_CONTAINER_TAG))
+rp5_temp_value_start = rp5_temp_tag_index + rp5_temp_tag_size
+rp5_temp = ''
+
+for char in rp5_page[rp5_temp_value_start:]:
+    if char != '<':
+        rp5_temp += char
+    else:
+        break
+
+print('RP5 Weather: \n')
+print(f'Temperature: {html.unescape(rp5_temp)}\n')
+
+RP5_COND_TAG = '<div class="ArchiveTempFeeling">'
+rp5_cond_tag_size = len(RP5_COND_TAG)
+rp5_cond_tag_index = rp5_page.find(RP5_COND_TAG)
+rp5_cond_value_start = rp5_cond_tag_index + rp5_cond_tag_size
+rp5_cond = ''
+
+for char in rp5_page[rp5_cond_value_start:]:
+    if char != '<':
+        rp5_cond += char
+    else:
+        break
+
+RP5_COND_TAG = '<div class="TempStr"><span class="t_0" style="display: block;">'
+rp5_cond_tag_size = len(RP5_COND_TAG)
+rp5_cond_tag_index = rp5_page.find(RP5_COND_TAG)
+rp5_cond_value_start = rp5_cond_tag_index + rp5_cond_tag_size
+rp5_cond1 = ''
+
+for char in rp5_page[rp5_cond_value_start:]:
+    if char != '<':
+        rp5_cond1 += char
+    else:
+        break
+
+print(f'Condition: {rp5_cond}{html.unescape(rp5_cond1)}\n')
