@@ -10,80 +10,70 @@ RP5_URL = ("http://rp5.ua/%D0%9F%D0%BE%D0%B3%D0%BE%D0%B4%D0%B0_%D1%83_"
 
 headers = {'User-Agent': 'Mozilla/5.0 (X11; Fedora; Linux x86_64)'}
 
-accu_request = Request(ACCU_URL, headers=headers)
-accu_page = urlopen(accu_request).read()
-accu_page = accu_page.decode('utf-8')
+ACCU_TAGS = ('<span class="large-temp">', '<span class="cond">')
+RP5_TAGS = ('<span class="t_0" style="display: block;">',
+            '<div class="ArchiveTempFeeling">')
+            #'<div class="TempStr"><span class="t_0" style="display: block;">')
 
-ACCU_TEMP_TAG = '<span class="large-temp">'
-accu_temp_tag_size = len(ACCU_TEMP_TAG)
-accu_temp_tag_index = accu_page.find(ACCU_TEMP_TAG)
-accu_temp_value_start = accu_temp_tag_index + accu_temp_tag_size
-accu_temp = ''
 
-for char in accu_page[accu_temp_value_start:]:
-    if char != '<':
-        accu_temp += char
-    else:
-        break
+def get_request_headers():
+    return{'User-Agent': 'Mozilla/5.0 (X11; Fedora; Linux x86_64)'}
 
-print('Accuweather: \n')
-print(f'Temperature: {html.unescape(accu_temp)}\n')
 
-ACCU_COND_TAG = '<span class="cond">'
-accu_cond_tag_size = len(ACCU_COND_TAG)
-accu_cond_tag_index = accu_page.find(ACCU_COND_TAG)
-accu_cond_value_start = accu_cond_tag_index + accu_cond_tag_size
+def get_page_source(url):
+    """
+    :param url: site url in str
+    :return: decoded source code of html page received from url.
+    """
+    request = Request(url, headers=get_request_headers())
+    page_source = urlopen(request).read()
+    return page_source.decode('utf-8')
 
-accu_temp = ''
-for char in accu_page[accu_cond_value_start:]:
-    if char != '<':
-        accu_temp += char
-    else:
-        break
-print(f'Condition: {accu_temp}\n')
 
-rp5_request = Request(RP5_URL, headers=headers)
-rp5_page = urlopen(rp5_request).read()
-rp5_page = rp5_page.decode('utf-8')
+def get_tag_content(page_content, tag):
+    """
+    :param page_content: decoded page source
+    :param tag: string what to find in page content
+    :return: generated string with information wich was found after tag
+    """
+    tag_size = len(tag)
+    tag_index = page_content.find(tag)
+    value_start = tag_index + tag_size
+    content = ''
 
-RP5_CONTAINER_TAG = '<div id="ArchTemp">'
-RP5_TEMP_TAG = '<span class="t_0" style="display: block;">'
-rp5_temp_tag_size = len(RP5_TEMP_TAG)
-rp5_temp_tag_index = rp5_page.find(RP5_TEMP_TAG, rp5_page.find(RP5_CONTAINER_TAG))
-rp5_temp_value_start = rp5_temp_tag_index + rp5_temp_tag_size
-rp5_temp = ''
+    for char in page_content[value_start:]:
+        if char != '<':
+            content += char
+        else:
+            break
+    return content
 
-for char in rp5_page[rp5_temp_value_start:]:
-    if char != '<':
-        rp5_temp += char
-    else:
-        break
+def get_weather_info(page_content, tags):
+    """
+    :param page_content:  decoded page source
+    :param tags: string what to find in page content
+    :return:
+    """
+    return tuple([get_tag_content(page_content, tag) for tag in tags])
 
-print('RP5 Weather: \n')
-print(f'Temperature: {html.unescape(rp5_temp)}\n')
 
-RP5_COND_TAG = '<div class="ArchiveTempFeeling">'
-rp5_cond_tag_size = len(RP5_COND_TAG)
-rp5_cond_tag_index = rp5_page.find(RP5_COND_TAG)
-rp5_cond_value_start = rp5_cond_tag_index + rp5_cond_tag_size
-rp5_cond = ''
+def produce_output(provider_name, temp, condition):
+    print(f'\n {provider_name}')
+    print(f'Temperature: {html.unescape(temp)}\n')
+    print(f'Condition: {html.unescape(condition)}\n')
 
-for char in rp5_page[rp5_cond_value_start:]:
-    if char != '<':
-        rp5_cond += char
-    else:
-        break
+def main():
+    """ Main antry point
+    """
+    weather_sites = {'AccuWeather': (ACCU_URL, ACCU_TAGS),
+                     'RP5': (RP5_URL, RP5_TAGS)}
 
-RP5_COND_TAG = '<div class="TempStr"><span class="t_0" style="display: block;">'
-rp5_cond_tag_size = len(RP5_COND_TAG)
-rp5_cond_tag_index = rp5_page.find(RP5_COND_TAG)
-rp5_cond_value_start = rp5_cond_tag_index + rp5_cond_tag_size
-rp5_cond1 = ''
+    for name in weather_sites:
+        url, tags = weather_sites[name]
+        content = get_page_source(url)
+        temp, condition = get_weather_info(content, tags)
+        produce_output(name, temp, condition)
 
-for char in rp5_page[rp5_cond_value_start:]:
-    if char != '<':
-        rp5_cond1 += char
-    else:
-        break
 
-print(f'Condition: {rp5_cond}{html.unescape(rp5_cond1)}\n')
+if __name__ == '__main__':
+    main()
