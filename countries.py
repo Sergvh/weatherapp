@@ -12,7 +12,6 @@ page = page.decode('utf-8')
 
 COUNTRIES_TAG = '.png'
 i = 0
-country = ''
 for match in re.finditer(COUNTRIES_TAG, page):
     if i != 0 and i < 10:
         country = ''
