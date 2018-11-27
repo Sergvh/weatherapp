@@ -1,6 +1,5 @@
 #!usr/bin/python3.6
 import html
-
 from urllib.request import urlopen, Request
 
 ACCU_URL = "https://www.accuweather.com/uk/ua/lviv/324561/weather-forecast/324561"
