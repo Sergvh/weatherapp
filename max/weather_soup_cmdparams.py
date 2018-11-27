@@ -83,3 +83,7 @@ if __name__ == '__main__':
     else:
         print("Argument must be 1 for Accuweather 2 for RP5 or something else for both")
         quit()
+<<<<<<< HEAD
+=======
+
+>>>>>>> 77d3a60c035b21b43ceeb4ec40916ee1fdca95a7
