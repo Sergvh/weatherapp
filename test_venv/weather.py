@@ -12,9 +12,6 @@ RP5_URL = ("http://rp5.ua/%D0%9F%D0%BE%D0%B3%D0%BE%D0%B4%D0%B0_%D1%83_"
 
 headers = {'User-Agent': 'Mozilla/5.0 (X11; Fedora; Linux x86_64)'}
 
-ACCU_TAGS = ('large-temp', 'cond')
-RP5_TAGS = ('t_0', 'ArchiveTempFeeling')
-
 
 def get_request_headers():
     return{'User-Agent': 'Mozilla/5.0 (X11; Fedora; Linux x86_64)'}
