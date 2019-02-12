@@ -3,8 +3,9 @@
 import html
 import configparser
 import sys
+import time
 import argparse
-
+import hashlib
 from pathlib import Path
 from bs4 import BeautifulSoup
 from urllib.request import urlopen, Request
@@ -16,15 +17,19 @@ RP5_URL = ("http://rp5.ua/%D0%9F%D0%BE%D0%B3%D0%BE%D0%B4%D0%B0_%D1%83_"
            "%D0%9B%D1%8C%D0%B2%D0%BE%D0%B2%D1%96,_%D0%9B%D1%8C%D0%B2%D1%96%D0%"
            "B2%D1%81%D1%8C%D0%BA%D0%B0_%D0%BE%D0%B1%D0%BB%D0%B0%D1%81%"
            "D1%82%D1%8C")
+
 ACCU_BROWSE_LOCETION = "https://www.accuweather.com/uk/browse-locations"
-RP5_BROWSE_LOCETION = "http://rp5.ua/%D0%9F%D0%BE%D0%B3%D0%BE%D0%B4%D0%B0_%D0%B" \
-                      "2_%D1%81%D0%B2%D1%96%D1%82%D1%96"
+RP5_BROWSE_LOCETION = "http://rp5.ua/%D0%9F%D0%BE%D0%B3%D0%BE%D0%B4%D0%B0_%D" \
+                      "0%B2_%D1%81%D0%B2%D1%96%D1%82%D1%96"
 GIS_BROWSE_LOCETION = "https://www.gismeteo.ua/ua/catalog/"
 
 CONFIG_LOCATION = 'Location'
 CONFIG_FILE = 'weatherapp.ini'
 
 INFO_FILE = 'weather.txt'
+
+CACHE_DIR = '.wappcache'
+CACHE_TIME = 300
 
 DEFAULT_NAME = 'Kyiv'
 DEFAULT_URL = "https://www.accuweather.com/uk/ua/kyiv/324505/weather-forecast" \
@@ -96,14 +101,16 @@ def get_gis_locations(locations_url):
         divka = soup.find('div', class_='districts subregions wrap')
         if divka:
             for location in divka.find_all('li'):
-                url = "https://www.gismeteo.ua" + location.find('a').attrs['href']
+                url = "https://www.gismeteo.ua" + \
+                      location.find('a').attrs['href']
                 location = location.find('a').text
                 locations.append((location, url))
         else:
             divka = soup.find('div', class_='subregions wrap')
             if divka:
                 for location in divka.find_all('li'):
-                    url = "https://www.gismeteo.ua" + location.find('a').attrs['href']
+                    url = "https://www.gismeteo.ua" + \
+                          location.find('a').attrs['href']
                     location = location.find('a').text
                     locations.append((location, url))
 
@@ -115,7 +122,17 @@ LOCATIONS_PROVIDERS = {'accu': get_accu_locations,
                        'gis': get_gis_locations}
 
 
+def get_cache_directory():
+    """Path to cache directory
+    :returns Path to cache directory in your home directory.
+    """
+    return Path.home() / CACHE_DIR
+
+
 def get_configuration_file():
+    """Path to configuration file
+    :returns Path to configuration file in your home directory.
+    """
     return Path.home() / CONFIG_FILE
 
 
@@ -158,13 +175,63 @@ def configurate(provider):
     save_configuration(provider, *location)
 
 
-def get_page_source(url):
+def get_url_hash(url):
+    """Returns generated hash for given url.
+    """
+
+    return hashlib.md5(url.encode('utf-8')).hexdigest()
+
+
+def save_cache(url, page_source):
+    """ Save page source data to file
+    """
+    url_hash = get_url_hash(url)
+    cache_dir = get_cache_directory()
+    if not cache_dir.exists():
+        cache_dir.mkdir(parents=True)
+
+    with (cache_dir / url_hash).open('wb') as cache_file:
+        cache_file.write(page_source)
+
+
+def is_valid(path):
+    """Check if current cache is valid.
+    """
+
+    return (time.time() - path.stat().st_mtime) < CACHE_TIME
+
+
+def get_cache(url):
+    """Get cache data if any.
+    """
+
+    cache = b''
+    url_hash = get_url_hash(url)
+    cache_dir = get_cache_directory()
+    if cache_dir.exists():
+        cache_path = cache_dir / url_hash
+        if cache_path.exists() and is_valid(cache_path):
+            with cache_path.open('rb') as cache_file:
+                cache = cache_file.read()
+
+    return cache
+
+
+def get_page_source(url, refresh=False):
     """
     :param url: site url in str
     :return: decoded source code of html page received from url.
     """
-    request = Request(url, headers=get_request_headers())
-    page_source = urlopen(request).read()
+
+    cache = get_cache(url)
+    if cache and not refresh:
+        page_source = cache
+        print(f"cache for {url}")
+    else:
+        request = Request(url, headers=get_request_headers())
+        page_source = urlopen(request).read()
+        save_cache(url, page_source)
+
     return page_source.decode('utf-8')
 
 
@@ -242,8 +309,8 @@ def get_gis_weather_info(page_content):
     print('Hello')
 
 
-def produce_output(city_name, info):
-    print('AccuWeather:\n')
+def produce_output(city_name, info, provider):
+    #print(provider+'\n')
     print(f'{city_name}')
     print(f'_'*20)
     for key, value in info.items():
@@ -265,10 +332,10 @@ GET_INFO_PROVIDERS = {'accu': get_accu_weather_info,
                       'rp5': get_rp5_weather_info,
                       'gis': get_gis_weather_info}
 
-def get_weather_info(provider):
+def get_weather_info(provider, refresh = False):
     city_name, city_url = get_configuration(provider)
-    content = get_page_source(city_url)
-    produce_output(city_name, GET_INFO_PROVIDERS[provider](content))
+    content = get_page_source(city_url, refresh)
+    produce_output(city_name, GET_INFO_PROVIDERS[provider](content), provider)
     return GET_INFO_PROVIDERS[provider](content)
 
 
@@ -304,12 +371,16 @@ def main(argv):
     parser.add_argument('-c', '--config', nargs='?',
                         help="use -c [Service name] for configure", default='')
     parser.add_argument('command', help='Service name', nargs='?')
+    parser.add_argument('-r', '--refresh', help='Update caches',
+                        action='store_true')
+
     params = parser.parse_args(argv)
 
     if params.command:
-        KNOWN_COMMANDS[params.command](params.command)
+        KNOWN_COMMANDS[params.command](params.command, refresh=params.refresh)
     elif params.save:
-        KNOWN_COMMANDS['-s'](params.save, KNOWN_COMMANDS[params.save](params.save))
+        KNOWN_COMMANDS['-s'](params.save,
+                             KNOWN_COMMANDS[params.save](params.save))
     elif params.config:
         KNOWN_COMMANDS['-c'](params.config)
     else:
