@@ -3,9 +3,11 @@
 import html
 import configparser
 import sys
+import os
 import time
 import argparse
 import hashlib
+import re
 from pathlib import Path
 from bs4 import BeautifulSoup
 from urllib.request import urlopen, Request
@@ -29,7 +31,7 @@ CONFIG_FILE = 'weatherapp.ini'
 INFO_FILE = 'weather.txt'
 
 CACHE_DIR = '.wappcache'
-CACHE_TIME = 300
+CACHE_TIME = 30
 
 DEFAULT_NAME = 'Kyiv'
 DEFAULT_URL = "https://www.accuweather.com/uk/ua/kyiv/324505/weather-forecast" \
@@ -92,7 +94,7 @@ def get_gis_locations(locations_url):
 
     divka = soup.find('div', class_='countries wrap')
     if divka:
-        print(divka)
+        #print(divka)
         for location in divka.find_all('li'):
             url = "https://www.gismeteo.ua" + location.find('a').attrs['href']
             location = location.find('a').text
@@ -226,7 +228,7 @@ def get_page_source(url, refresh=False):
     cache = get_cache(url)
     if cache and not refresh:
         page_source = cache
-        print(f"cache for {url}")
+        #print(f"cache for {url}")
     else:
         request = Request(url, headers=get_request_headers())
         page_source = urlopen(request).read()
@@ -253,7 +255,7 @@ def get_accu_weather_info(page_content):
     """
     city_page = BeautifulSoup(page_content, 'html.parser')
     current_day_section = city_page.find(
-        'li', class_='day current first cl')
+        'li', class_=re.compile('(day|night) current first cl'))
 
     weather_info = {'name': 'AccuWeather'}
     if current_day_section:
@@ -349,6 +351,22 @@ def get_all_providers_info():
     get_rp5_weather_info()
 
 
+def clear_old_cache():
+    cache_dir = get_cache_directory()
+    if cache_dir.exists():
+        for name in os.listdir(cache_dir):
+            cache_path = cache_dir / name
+            if cache_path.exists() and not is_valid(cache_path):
+                print(cache_path)
+                os.remove(cache_path)
+
+
+def delete_all_cache():
+    cache_dir = get_cache_directory()
+    if cache_dir.exists():
+        os.removedirs(cache_dir)
+
+
 KNOWN_COMMANDS = {'accu': get_weather_info,
                   'rp5': get_weather_info,
                   '-s': save_data_to_file,
@@ -365,6 +383,9 @@ def main(argv):
     """
 
     parser = argparse.ArgumentParser()
+    parser.add_argument('-cc', '--clearcache', nargs='?',
+                        help="use -cc [Service name] to clear cache "
+                             "in file", default='')
     parser.add_argument('-s', '--save',  nargs='?',
                         help="use -s [Service name] for save data "
                         "in file", default='')
@@ -373,6 +394,8 @@ def main(argv):
     parser.add_argument('command', help='Service name', nargs='?')
     parser.add_argument('-r', '--refresh', help='Update caches',
                         action='store_true')
+
+    clear_old_cache()
 
     params = parser.parse_args(argv)
 
@@ -383,6 +406,9 @@ def main(argv):
                              KNOWN_COMMANDS[params.save](params.save))
     elif params.config:
         KNOWN_COMMANDS['-c'](params.config)
+    elif params.clearcache:
+        delete_all_cache()
+
     else:
           print('Unknown command provided!')
           sys.exit(1)
