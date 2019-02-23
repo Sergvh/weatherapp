@@ -17,14 +17,14 @@ def get_info_file():
 
 
 # def configurate(provider):
-#     locations = LOCATIONS_PROVIDERS[provider](PROVIDER[provider])
+#     locations = config.LOCATIONS_PROVIDERS[provider](PROVIDER[provider])
 #
 #     while locations:
 #         for index, location in enumerate(locations):
 #             print(f'{index + 1}. {location[0]}')
 #         selected_index = int(input('Please select location: '))
 #         location = locations[selected_index - 1]
-#         locations = LOCATIONS_PROVIDERS[provider](location[1])
+#         locations = config.LOCATIONS_PROVIDERS[provider](location[1])
 #     save_configuration(provider, *location)
 
 
