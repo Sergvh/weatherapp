@@ -10,6 +10,7 @@ from pathlib import Path
 from providers import AccuWeatherProvider, Rp5WeatherProvider,\
                       GisWeatherProvider
 import config
+import app
 
 
 def get_info_file():
@@ -28,26 +29,14 @@ def get_info_file():
 #     save_configuration(provider, *location)
 
 
-def get_tag_content(soup, tag):
-    """
-    :param soup: decoded page source
-    :param tag: string what to find in page content
-    :return: generated string with information wich was found after tag
-    """
-    content = soup.find(attrs={'class': tag})
-    return content.text
-
-
-def get_gis_weather_info(page_content):
-    print('Hello')
-
-
-def produce_output(city_name, info):
-    print(f'\n{city_name}')
-    print(f'_'*20)
-    for key, value in info.items():
-        print(f'{key}: {html.unescape(value)}')
-    print('\n')
+# def get_tag_content(soup, tag):
+#     """
+#     :param soup: decoded page source
+#     :param tag: string what to find in page content
+#     :return: generated string with information wich was found after tag
+#     """
+#     content = soup.find(attrs={'class': tag})
+#     return content.text
 
 
 def save_data_to_file(info):
@@ -63,17 +52,17 @@ def save_data_to_file(info):
 
 def get_accu_weather_info(refresh=False):
     accu = AccuWeatherProvider()
-    produce_output(accu.location, accu.run(refresh=refresh))
+    app.produce_output(accu.location, accu.run(refresh=refresh))
 
 
 def get_rp5_weather_info(refresh=False):
     rp5 = Rp5WeatherProvider()
-    produce_output(rp5.location, rp5.run(refresh=refresh))
+    app.produce_output(rp5.location, rp5.run(refresh=refresh))
 
 
 def get_gis_weather_info(refresh=False):
     gis = GisWeatherProvider()
-    produce_output(gis.location, gis.run(refresh=refresh))
+    app.produce_output(gis.location, gis.run(refresh=refresh))
 
 
 def get_all_providers_info(refresh=False):
