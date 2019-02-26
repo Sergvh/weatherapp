@@ -46,9 +46,11 @@ def parameters_print(func):
     return wrapper
 
 
+@timer
+@slow_down(sec=3)
 @parameters_print
 def hello(name='Serhii', *args, **kwargs):
-    print(f'Hello {name}')
+    print(f'Hello {name}\n')
 
 
 hello('Serg', 123, 'hi', None)
