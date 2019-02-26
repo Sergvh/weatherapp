@@ -39,7 +39,8 @@ class WeatherProvider:
 
         return name, url
 
-    def get_configuration_file(self):
+    @staticmethod
+    def get_configuration_file():
         """Path to configuration file
 
         :returns Path to configuration file in your home directory.
@@ -62,13 +63,15 @@ class WeatherProvider:
         with open(self.get_configuration_file(), 'w') as configfile:
             parser.write(configfile)
 
-    def get_request_headers(self):
+    @staticmethod
+    def get_request_headers():
         """Returns custom headers for url requests.
         """
 
         return {'User-Agent': 'Mozilla/5.0 (X11; Fedora; Linux x86_64)'}
 
-    def get_url_hash(self, url):
+    @staticmethod
+    def get_url_hash(url):
         """Returns generated hash for given url.
         """
 
@@ -85,7 +88,8 @@ class WeatherProvider:
         with (cache_dir / url_hash).open('wb') as cache_file:
             cache_file.write(page_source)
 
-    def is_valid(self, path):
+    @staticmethod
+    def is_valid(path):
         """Check if current cache is valid.
         """
 
@@ -106,7 +110,8 @@ class WeatherProvider:
 
         return cache
 
-    def get_cache_directory(self):
+    @staticmethod
+    def get_cache_directory():
         """Path to cache directory
         :returns Path to cache directory in your home directory.
         """
@@ -147,6 +152,14 @@ class Rp5WeatherProvider(WeatherProvider):
     default_location = config.DEFAULT_RP5_LOCATION_NAME
     default_url = config.DEFAULT_RP5_LOCATION_URL
 
+    @staticmethod
+    def get_default_location():
+        return config.DEFAULT_RP5_LOCATION_NAME
+
+    @staticmethod
+    def get_default_url():
+        return config.DEFAULT_RP5_LOCATION_URL
+
     def get_rp5_locations(self, locations_url):
         locations_page = self.get_page_source(locations_url)
         soup = BeautifulSoup(locations_page, 'html.parser')
@@ -175,7 +188,8 @@ class Rp5WeatherProvider(WeatherProvider):
 
         return locations
 
-    def get_weather_info(self, page_content, refresh=False):
+    @staticmethod
+    def get_weather_info(page_content, refresh=False):
         """
         :param page_content:  decoded page source
         :return: dictionary of
@@ -209,6 +223,14 @@ class GisWeatherProvider(WeatherProvider):
     default_location = config.DEFAULT_GIS_LOCATION_NAME
     default_url = config.DEFAULT_GIS_LOCATION_URL
 
+    @staticmethod
+    def get_default_location():
+        return config.DEFAULT_GIS_LOCATION_NAME
+
+    @staticmethod
+    def get_default_url():
+        return config.DEFAULT_GIS_LOCATION_URL
+
     def get_gis_locations(self, locations_url):
         locations_page = self.get_page_source(locations_url)
         soup = BeautifulSoup(locations_page, 'html.parser')
@@ -241,7 +263,8 @@ class GisWeatherProvider(WeatherProvider):
 
         return locations
 
-    def get_weather_info(self, page_content, refresh=False):
+    @staticmethod
+    def get_weather_info(page_content, refresh=False):
         """
         :param page_content:  decoded page source
         :return: dictionary of
@@ -275,6 +298,14 @@ class AccuWeatherProvider(WeatherProvider):
 
     default_location = config.DEFAULT_ACCU_LOCATION_NAME
     default_url = config.DEFAULT_ACCU_LOCATION_URL
+
+    @staticmethod
+    def get_default_location():
+        return config.DEFAULT_ACCU_LOCATION_NAME
+
+    @staticmethod
+    def get_default_url():
+        return config.DEFAULT_ACCU_LOCATION_URL
 
     def get_accu_locations(self, locations_url):
         locations_page = self.get_page_source(locations_url)
@@ -331,7 +362,15 @@ class SinWeatherProvider(WeatherProvider):
     title = config.SIN_PROVIDER_TITLE
 
     default_location = config.DEFAULT_SIN_LOCATION_NAME
-    default_url = config.DEFAULT_SIN_LOCATION_URL
+    default_url = config.DEFAULT_SIN_LOCATION_URLgrt
+
+    @staticmethod
+    def get_default_location():
+        return config.DEFAULT_SIN_LOCATION_NAME
+
+    @staticmethod
+    def get_default_url():
+        return config.DEFAULT_SIN_LOCATION_URL
 
     def get_sin_locations(self, locations_url):
         locations_page = self.get_page_source(locations_url)
@@ -344,7 +383,8 @@ class SinWeatherProvider(WeatherProvider):
             locations.append((location, url))
         return locations
 
-    def get_weather_info(self, page_content, refresh=False):
+    @staticmethod
+    def get_weather_info(page_content, refresh=False):
         """
         :param page_content:  html page source
         :return:

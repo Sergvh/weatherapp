@@ -1,4 +1,5 @@
 """Main application module"""
+
 import html
 from argparse import ArgumentParser
 import sys
@@ -13,26 +14,28 @@ class App:
         self.arg_parser = self._arg_parse()
         self.providermanager = ProviderManager()
 
-    def _arg_parse(self):
+    @staticmethod
+    def _arg_parse():
         """Initialize argument parser
         """
 
         arg_parser = ArgumentParser(add_help=False)
         arg_parser.add_argument('-cc', '--clearcache', nargs='?',
-                            help="use -cc [Service name] to clear cache "
-                                 "in file", default='')
+                                help="use -cc [Service name] to clear cache "
+                                "in file", default='')
         arg_parser.add_argument('-s', '--save', nargs='?',
-                            help="use -s [Service name] for save data "
-                                 "in file", default='')
+                                help="use -s [Service name] for save data "
+                                "in file", default='')
         arg_parser.add_argument('-c', '--config', nargs='?',
-                            help="use -c [Service name] for configure",
-                            default='')
+                                help="use -c [Service name] for configure",
+                                default='')
         arg_parser.add_argument('command', help='Service name', nargs='?')
         arg_parser.add_argument('-r', '--refresh', help='Update caches',
-                            action='store_true')
+                                action='store_true')
         return arg_parser
 
-    def produce_output(self, title, location, info):
+    @staticmethod
+    def produce_outputtitle(location, info):
         """Prints result
         """
         print(f'\n{title}')
