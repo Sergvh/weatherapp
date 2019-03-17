@@ -17,26 +17,9 @@ def get_info_file():
     return Path.home() / config.INFO_FILE
 
 
-# def configurate(provider):
-#     locations = config.LOCATIONS_PROVIDERS[provider](PROVIDER[provider])
-#
-#     while locations:
-#         for index, location in enumerate(locations):
-#             print(f'{index + 1}. {location[0]}')
-#         selected_index = int(input('Please select location: '))
-#         location = locations[selected_index - 1]
-#         locations = config.LOCATIONS_PROVIDERS[provider](location[1])
-#     save_configuration(provider, *location)
 
 
-# def get_tag_content(soup, tag):
-#     """
-#     :param soup: decoded page source
-#     :param tag: string what to find in page content
-#     :return: generated string with information wich was found after tag
-#     """
-#     content = soup.find(attrs={'class': tag})
-#     return content.text
+
 
 
 def save_data_to_file(info):

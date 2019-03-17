@@ -26,16 +26,16 @@ class App:
         arg_parser.add_argument('-s', '--save', nargs='?',
                                 help="use -s [Service name] for save data "
                                 "in file", default='')
-        arg_parser.add_argument('-c', '--config', nargs='?',
-                                help="use -c [Service name] for configure",
-                                default='')
         arg_parser.add_argument('command', help='Service name', nargs='?')
         arg_parser.add_argument('-r', '--refresh', help='Update caches',
                                 action='store_true')
+        arg_parser.add_argument('-c', '--config', nargs='?',
+                                help="use -c [Service name] for configure",
+                                default='')
         return arg_parser
 
     @staticmethod
-    def produce_outputtitle(location, info):
+    def produce_output(title, location, info):
         """Prints result
         """
         print(f'\n{title}')
@@ -62,14 +62,14 @@ class App:
                 provider_obj = provider(self)
                 self.produce_output(provider_obj.title,
                                     provider_obj.location,
-                                    provider_obj.run())
+                                    provider_obj.run(remaining_args))
         elif command_name in self.providermanager:
             #run specific provider
             provider = self.providermanager[command_name]
             provider_obj = provider(self)
             self.produce_output(provider_obj.title,
                                 provider_obj.location,
-                                provider_obj.run())
+                                provider_obj.run(remaining_args))
 
 
 def main(argv=sys.argv[1:]):

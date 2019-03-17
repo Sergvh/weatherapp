@@ -1,8 +1,3 @@
-import configparser
-from pathlib import Path
-import hashlib
-import time
-from urllib.request import urlopen, Request
 import re
 
 from urllib.parse import quote
@@ -10,136 +5,7 @@ from urllib.parse import quote
 from bs4 import BeautifulSoup
 
 import config
-
-
-class WeatherProvider:
-    """Base weather provider
-    """
-
-    def __init__(self, app):
-        self.app = app
-
-        location, url = self.get_configuration(self.name)
-        self.location = location
-        self.url = url
-
-    def get_configuration(self, provider):
-        """Returns configured location name and url
-
-        :returns: name and url
-        :rtype: tuple
-        """
-
-        parser = configparser.ConfigParser()
-        parser.read(self.get_configuration_file())
-
-        if provider in parser. sections():
-            location_config = parser[provider]
-            name, url = location_config['name'], location_config['url']
-
-        return name, url
-
-    @staticmethod
-    def get_configuration_file():
-        """Path to configuration file
-
-        :returns Path to configuration file in your home directory.
-        """
-        return Path.home() / config.CONFIG_FILE
-
-    def save_configuration(self, provider, name, url):
-        """Save selected location to configuration file
-
-        :param name: city name
-        :param type: str
-
-        :param url: Prefered location url
-        :param type: str
-        """
-        parser = configparser.ConfigParser()
-        url = url.replace('%', '%%')
-        parser.read(self.get_configuration_file())
-        parser[provider] = {'name': name, 'url': url}
-        with open(self.get_configuration_file(), 'w') as configfile:
-            parser.write(configfile)
-
-    @staticmethod
-    def get_request_headers():
-        """Returns custom headers for url requests.
-        """
-
-        return {'User-Agent': 'Mozilla/5.0 (X11; Fedora; Linux x86_64)'}
-
-    @staticmethod
-    def get_url_hash(url):
-        """Returns generated hash for given url.
-        """
-
-        return hashlib.md5(url.encode('utf-8')).hexdigest()
-
-    def save_cache(self, url, page_source):
-        """ Save page source data to file
-        """
-        url_hash = self.get_url_hash(url)
-        cache_dir = self.get_cache_directory()
-        if not cache_dir.exists():
-            cache_dir.mkdir(parents=True)
-
-        with (cache_dir / url_hash).open('wb') as cache_file:
-            cache_file.write(page_source)
-
-    @staticmethod
-    def is_valid(path):
-        """Check if current cache is valid.
-        """
-
-        return (time.time() - path.stat().st_mtime) < config.CACHE_TIME
-
-    def get_cache(self, url):
-        """Get cache data if any.
-        """
-
-        cache = b''
-        url_hash = self.get_url_hash(url)
-        cache_dir = self.get_cache_directory()
-        if cache_dir.exists():
-            cache_path = cache_dir / url_hash
-            if cache_path.exists() and self.is_valid(cache_path):
-                with cache_path.open('rb') as cache_file:
-                    cache = cache_file.read()
-
-        return cache
-
-    @staticmethod
-    def get_cache_directory():
-        """Path to cache directory
-        :returns Path to cache directory in your home directory.
-        """
-        return Path.home() / config.CACHE_DIR
-
-    def get_page_source(self, url, refresh=False):
-        """
-        :param url: site url in str
-        :return: decoded source code of html page received from url.
-        """
-
-        cache = self.get_cache(url)
-        if cache and not self.app.options.refresh:
-            page_source = cache
-        else:
-            request = Request(url, headers=self.get_request_headers())
-            page_source = urlopen(request).read()
-            self.save_cache(url, page_source)
-
-        return page_source.decode('utf-8')
-
-    def run(self, refresh=False):
-        """Run provider
-        """
-
-        content = self.get_page_source(self.url, refresh=refresh)
-
-        return self.get_weather_info(content, refresh=refresh)
+from abstract import WeatherProvider
 
 
 class Rp5WeatherProvider(WeatherProvider):
@@ -159,6 +25,10 @@ class Rp5WeatherProvider(WeatherProvider):
     @staticmethod
     def get_default_url():
         return config.DEFAULT_RP5_LOCATION_URL
+
+    @staticmethod
+    def get_name():
+        return config.RP5_PROVIDER_NAME
 
     def get_rp5_locations(self, locations_url):
         locations_page = self.get_page_source(locations_url)
@@ -187,6 +57,19 @@ class Rp5WeatherProvider(WeatherProvider):
                     locations.append((location, url))
 
         return locations
+
+    def configurate(self):
+        """Performs provider configuration
+        """
+        locations = self.get_rp5_locations(config.RP5_BROWSE_LOCATIONS)
+
+        while locations:
+            for index, location in enumerate(locations):
+                print(f'{index + 1}. {location[0]}')
+            selected_index = int(input('Please select location: '))
+            location = locations[selected_index - 1]
+            locations = self.get_rp5_locations(location[1])
+        WeatherProvider.save_configuration(self.name, *location)
 
     @staticmethod
     def get_weather_info(page_content, refresh=False):
@@ -231,6 +114,10 @@ class GisWeatherProvider(WeatherProvider):
     def get_default_url():
         return config.DEFAULT_GIS_LOCATION_URL
 
+    @staticmethod
+    def get_name():
+        return config.GIS_PROVIDER_NAME
+
     def get_gis_locations(self, locations_url):
         locations_page = self.get_page_source(locations_url)
         soup = BeautifulSoup(locations_page, 'html.parser')
@@ -262,6 +149,19 @@ class GisWeatherProvider(WeatherProvider):
                         locations.append((location, url))
 
         return locations
+
+    def configurate(self):
+        """Performs provider configuration
+        """
+        locations = self.get_gis_locations(config.GIS_BROWSE_LOCATIONS)
+
+        while locations:
+            for index, location in enumerate(locations):
+                print(f'{index + 1}. {location[0]}')
+            selected_index = int(input('Please select location: '))
+            location = locations[selected_index - 1]
+            locations = self.get_gis_locations(location[1])
+        WeatherProvider.save_configuration(self.name, *location)
 
     @staticmethod
     def get_weather_info(page_content, refresh=False):
@@ -307,6 +207,10 @@ class AccuWeatherProvider(WeatherProvider):
     def get_default_url():
         return config.DEFAULT_ACCU_LOCATION_URL
 
+    @staticmethod
+    def get_name():
+        return config.ACCU_PROVIDER_NAME
+
     def get_accu_locations(self, locations_url):
         locations_page = self.get_page_source(locations_url)
         soup = BeautifulSoup(locations_page, 'html.parser')
@@ -317,6 +221,19 @@ class AccuWeatherProvider(WeatherProvider):
             location = location.find('em').text
             locations.append((location, url))
         return locations
+
+    def configurate(self):
+        """Performs provider configuration
+        """
+        locations = self.get_accu_locations(config.ACCU_BROWSE_LOCATIONS)
+
+        while locations:
+            for index, location in enumerate(locations):
+                print(f'{index + 1}. {location[0]}')
+            selected_index = int(input('Please select location: '))
+            location = locations[selected_index - 1]
+            locations = self.get_accu_locations(location[1])
+        WeatherProvider.save_configuration(self.name, *location)
 
     def get_weather_info(self, page_content, refresh=False):
         """
@@ -362,7 +279,7 @@ class SinWeatherProvider(WeatherProvider):
     title = config.SIN_PROVIDER_TITLE
 
     default_location = config.DEFAULT_SIN_LOCATION_NAME
-    default_url = config.DEFAULT_SIN_LOCATION_URLgrt
+    default_url = config.DEFAULT_SIN_LOCATION_URL
 
     @staticmethod
     def get_default_location():
@@ -371,6 +288,10 @@ class SinWeatherProvider(WeatherProvider):
     @staticmethod
     def get_default_url():
         return config.DEFAULT_SIN_LOCATION_URL
+
+    @staticmethod
+    def get_name():
+        return config.SIN_PROVIDER_NAME
 
     def get_sin_locations(self, locations_url):
         locations_page = self.get_page_source(locations_url)
@@ -382,6 +303,19 @@ class SinWeatherProvider(WeatherProvider):
             location = location.find('em').text
             locations.append((location, url))
         return locations
+
+    def configurate(self):
+        """Performs provider configuration
+        """
+        locations = self.get_sin_locations(config.SIN_BROWSE_LOCATIONS)
+
+        while locations:
+            for index, location in enumerate(locations):
+                print(f'{index + 1}. {location[0]}')
+            selected_index = int(input('Please select location: '))
+            location = locations[selected_index - 1]
+            locations = self.get_sin_locations(location[1])
+        WeatherProvider.save_configuration(self.name, *location)
 
     @staticmethod
     def get_weather_info(page_content, refresh=False):
