@@ -7,10 +7,12 @@ from abstract import Command
 class Configurate(Command):
     """Help to configure weather provider
     """
-    @staticmethod
-    def get_parser():
-        parser = super.get_parser()
-        parser.add.argument('provider', help='Provider name')
+
+    name = 'config'
+
+    def get_parser(self):
+        parser = super(Configurate, self).get_parser()#super.get_parser()
+        parser.add_argument('provider', help='Provider name')
         return parser
 
     def run(self, argv):
@@ -23,3 +25,13 @@ class Configurate(Command):
             if provider_name in self.app.providermanager:
                 provider_factory = self.app.providermanager.get(provider_name)
                 provider_factory(self.app).configurate()
+
+
+class Help(Command):
+    """Showing help information
+    """
+
+    name = 'help'
+
+    def run(self, argv):
+        pass

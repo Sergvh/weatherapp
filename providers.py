@@ -154,6 +154,7 @@ class GisWeatherProvider(WeatherProvider):
         """Performs provider configuration
         """
         locations = self.get_gis_locations(config.GIS_BROWSE_LOCATIONS)
+        provider = self.name
 
         while locations:
             for index, location in enumerate(locations):
@@ -161,7 +162,7 @@ class GisWeatherProvider(WeatherProvider):
             selected_index = int(input('Please select location: '))
             location = locations[selected_index - 1]
             locations = self.get_gis_locations(location[1])
-        WeatherProvider.save_configuration(self.name, *location)
+        WeatherProvider.save_configuration(provider, *location)
 
     @staticmethod
     def get_weather_info(page_content, refresh=False):
@@ -227,13 +228,16 @@ class AccuWeatherProvider(WeatherProvider):
         """
         locations = self.get_accu_locations(config.ACCU_BROWSE_LOCATIONS)
 
+        provider = self.name
         while locations:
             for index, location in enumerate(locations):
                 print(f'{index + 1}. {location[0]}')
             selected_index = int(input('Please select location: '))
             location = locations[selected_index - 1]
             locations = self.get_accu_locations(location[1])
-        WeatherProvider.save_configuration(self.name, *location)
+            #print(self.name)
+            #print(location[0], location[1])
+        WeatherProvider.save_configuration(provider, *location)
 
     def get_weather_info(self, page_content, refresh=False):
         """

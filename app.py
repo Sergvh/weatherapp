@@ -5,6 +5,7 @@ from argparse import ArgumentParser
 import sys
 
 from providermanager import ProviderManager
+from commandsmanager import CommandsManager
 
 
 class App:
@@ -13,6 +14,7 @@ class App:
     def __init__(self):
         self.arg_parser = self._arg_parse()
         self.providermanager = ProviderManager()
+        self.commandsmanager = CommandsManager()
 
     @staticmethod
     def _arg_parse():
@@ -70,6 +72,11 @@ class App:
             self.produce_output(provider_obj.title,
                                 provider_obj.location,
                                 provider_obj.run(remaining_args))
+
+        elif command_name in self.commandsmanager:
+            #run specific command
+            command = self.commandsmanager[command_name]
+            command(self).run(remaining_args)
 
 
 def main(argv=sys.argv[1:]):

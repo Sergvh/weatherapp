@@ -23,7 +23,7 @@ class Command(abc.ABC):
         self.app = app
 
     @staticmethod
-    def get_argument_parser():
+    def get_parser():
         """Initialize argument parser for command
         """
 
@@ -112,8 +112,11 @@ class WeatherProvider(Command):
         """
         return Path.home() / config.CONFIG_FILE
 
-    def save_configuration(self,  name, url):
+    def save_configuration(self, provider, name, url):
         """Save selected location to configuration file
+
+        :param provider: provider name
+        :param type: str
 
         :param name: city name
         :param type: str
@@ -121,15 +124,17 @@ class WeatherProvider(Command):
         :param url: Prefered location url
         :param type: str
         """
+        print(provider+'   '+name+'   '+url)
         parser = configparser.ConfigParser()
-        config_file = self.get_configuration_file()
+
+        config_file = Path.home() / config.CONFIG_FILE #self.get_configuration_file()
 
         if config_file.exists():
             parser.read(config_file)
 
         url = url.replace('%', '%%')
-        parser[self.get_name()] = {'name': name, 'url': url}
-        with open(config_file(), 'w') as configfile:
+        parser[provider] = {'name': name, 'url': url}
+        with open(config_file, 'w') as configfile:
             parser.write(configfile)
 
     @staticmethod

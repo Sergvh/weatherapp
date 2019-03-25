@@ -42,8 +42,7 @@ SIN_BROWSE_LOCATIONS = "https://ua.sinoptik.ua/%D1%83%D0%BA%D1%80%D0%B0%D1%" \
 
 
 #Configuration settings
-CONFIG_LOCATION = 'Location'
-CONFIG_FILE = 'weatherapp.ini'
+CONFIG_FILE = 'wapp.ini'
 
 
 #File to save settings
