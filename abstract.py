@@ -127,7 +127,7 @@ class WeatherProvider(Command):
         print(provider+'   '+name+'   '+url)
         parser = configparser.ConfigParser()
 
-        config_file = Path.home() / config.CONFIG_FILE #self.get_configuration_file()
+        config_file = self.get_configuration_file()
 
         if config_file.exists():
             parser.read(config_file)
