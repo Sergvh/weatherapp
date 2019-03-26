@@ -1,4 +1,4 @@
-from commands import Configurate, Help
+from commands import Configurate, Help, Providers
 
 
 class CommandsManager:
@@ -13,14 +13,14 @@ class CommandsManager:
         """Loads all existing commands
         """
 
-        for command in [Configurate, Help]:
+        for command in [Configurate, Providers]:
             self.add(command.name, command)
 
     def add(self, name, command):
         """ Add new provider by name
 
         :param name: command name.
-        :param command:
+        :param command: command class
         :return:
         """
 

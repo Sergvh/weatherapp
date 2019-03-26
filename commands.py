@@ -27,6 +27,22 @@ class Configurate(Command):
                 provider_factory(self.app).configurate()
 
 
+class Providers(Command):
+
+    """ Print all providers.
+    """
+
+    name = 'pvd'
+
+    def run(self, argv):
+        """ Run command.
+        """
+
+        for provider in self.app.providermanager:
+            print(provider.name)# + '  For provider:  ' +
+                           #provider[1] + "\n")
+
+
 class Help(Command):
     """Showing help information
     """
