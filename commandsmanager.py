@@ -6,14 +6,14 @@ class CommandsManager:
     """
 
     def __init__(self):
-        self._commands = {}
+        self.commands = {}
         self._load_commands()
 
     def _load_commands(self):
         """Loads all existing commands
         """
 
-        for command in [Configurate, Providers]:
+        for command in [Configurate, Providers, Help]:
             self.add(command.name, command)
 
     def add(self, name, command):
@@ -24,18 +24,18 @@ class CommandsManager:
         :return:
         """
 
-        self._commands[name] = command
+        self.commands[name] = command
 
     def get(self, name):
         """Gets command by name"""
 
-        return self._commands.get(name, None)
+        return self.commands.get(name, None)
 
     def __len__(self):
         """ Returns count of all existing commands
         """
 
-        return len(self._commands)
+        return len(self.commands)
 
     def __contains__(self, name):
         """Returns True or False if commands exists in container
@@ -43,10 +43,10 @@ class CommandsManager:
         :param name: name of command
         :return:
         """
-        return name in self._commands
+        return name in self.commands
 
     def __getitem__(self, name):
         """ Gets one command from container
         """
 
-        return self._commands[name]
+        return self.commands[name]

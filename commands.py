@@ -38,9 +38,8 @@ class Providers(Command):
         """ Run command.
         """
 
-        for provider in self.app.providermanager:
-            print(provider.name)# + '  For provider:  ' +
-                           #provider[1] + "\n")
+        for provider in self.app.providermanager._providers:
+            print(provider)
 
 
 class Help(Command):
