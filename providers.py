@@ -50,9 +50,20 @@ class AccuWeatherProvider(WeatherProvider):
         while locations:
             for index, location in enumerate(locations):
                 print(f'{index + 1}. {location[0]}')
-            selected_index = int(input('Please select location: '))
-            location = locations[selected_index - 1]
+            try:
+                selected_index = int(input('Please select location: '))
+            except ValueError:
+                print('\nYou must enter an integer number!\n')
+                raise SystemExit()
+
+            try:
+                location = locations[selected_index - 1]
+            except IndexError:
+                print('\nThe number you entered is too large!\n')
+                raise SystemExit()
+
             locations = self.get_accu_locations(location[1])
+
         WeatherProvider.save_configuration(self, provider, *location)
 
     def get_weather_info(self, page_content, refresh=False):
@@ -150,8 +161,19 @@ class Rp5WeatherProvider(WeatherProvider):
         while locations:
             for index, location in enumerate(locations):
                 print(f'{index + 1}. {location[0]}')
-            selected_index = int(input('Please select location: '))
-            location = locations[selected_index - 1]
+
+            try:
+                selected_index = int(input('Please select location: '))
+            except ValueError:
+                print('\nYou must enter an integer number!\n')
+                raise SystemExit()
+
+            try:
+                location = locations[selected_index - 1]
+            except IndexError:
+                print('\nThe number you entered is too large!\n')
+                raise SystemExit()
+
             locations = self.get_rp5_locations(location[1])
         WeatherProvider.save_configuration(self, provider, *location)
 
@@ -243,8 +265,19 @@ class GisWeatherProvider(WeatherProvider):
         while locations:
             for index, location in enumerate(locations):
                 print(f'{index + 1}. {location[0]}')
-            selected_index = int(input('Please select location: '))
-            location = locations[selected_index - 1]
+
+            try:
+                selected_index = int(input('Please select location: '))
+            except ValueError:
+                print('\nYou must enter an integer number!\n')
+                raise SystemExit()
+
+            try:
+                location = locations[selected_index - 1]
+            except IndexError:
+                print('\nThe number you entered is too large!\n')
+                raise SystemExit()
+
             locations = self.get_gis_locations(location[1])
         WeatherProvider.save_configuration(self, provider, *location)
 
@@ -316,8 +349,19 @@ class SinWeatherProvider(WeatherProvider):
         while locations:
             for index, location in enumerate(locations):
                 print(f'{index + 1}. {location[0]}')
-            selected_index = int(input('Please select location: '))
-            location = locations[selected_index - 1]
+
+            try:
+                selected_index = int(input('Please select location: '))
+            except ValueError:
+                print('\nYou must enter an integer number!\n')
+                raise SystemExit()
+
+            try:
+                location = locations[selected_index - 1]
+            except IndexError:
+                print('\nThe number you entered is too large!\n')
+                raise SystemExit()
+
             locations = self.get_sin_locations(location[1])
         WeatherProvider.save_configuration(self, provider, *location)
 
