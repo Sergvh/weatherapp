@@ -1,3 +1,7 @@
+#Application default verbose and logging level
+DEFAULT_VERBOSE_LEVEL = 0
+DEFAULT_MESSAGE_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+
 # AccuWeather provider related configuration
 ACCU_PROVIDER_NAME = 'accu'
 ACCU_PROVIDER_TITLE = 'AccuWeather'

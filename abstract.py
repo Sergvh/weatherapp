@@ -8,6 +8,7 @@ from pathlib import Path
 import hashlib
 import time
 from urllib.request import urlopen, Request
+import logging
 
 import config
 
@@ -42,6 +43,7 @@ class WeatherProvider(Command):
 
     Defines behavior for all weather providers.
     """
+    loger = logging.getLogger(__name__)
 
     def __init__(self, app):
         super().__init__(app)
@@ -49,6 +51,24 @@ class WeatherProvider(Command):
         location, url = self.get_configuration()
         self.location = location
         self.url = url
+        self.LOG_LEVEL_MAP = {0: logging.WARNING,
+                         1: logging.INFO,
+                         2: logging.DEBUG}
+
+    def configure_logging(self):
+        """Ceate logging handlers for any log output
+        """
+
+        root_logger = logging.getLogger('')
+        root_logger.setLevel(logging.DEBUG)
+
+        console = logging.StreamHandler()
+        console_level = self.LOG_LEVEL_MAP.get(2,
+                                               logging.WARNING)
+        console.setLevel(console_level)
+        formatter = logging.Formatter(config.DEFAULT_MESSAGE_FORMAT)
+        console.setFormatter(formatter)
+        root_logger.addHandler(console)
 
     @abc.abstractmethod
     def configurate(self):

@@ -1,5 +1,4 @@
 import re
-
 from urllib.parse import quote
 
 from bs4 import BeautifulSoup
@@ -52,12 +51,16 @@ class AccuWeatherProvider(WeatherProvider):
                 print(f'{index + 1}. {location[0]}')
             try:
                 selected_index = int(input('Please select location: '))
+                self.configure_logging()
+                self.loger.debug('Got the following number %s', selected_index)
             except ValueError:
                 print('\nYou must enter an integer number!\n')
                 raise SystemExit()
 
             try:
                 location = locations[selected_index - 1]
+                self.configure_logging()
+                self.loger.debug('Got the following location %s', location)
             except IndexError:
                 print('\nThe number you entered is too large!\n')
                 raise SystemExit()
@@ -164,12 +167,16 @@ class Rp5WeatherProvider(WeatherProvider):
 
             try:
                 selected_index = int(input('Please select location: '))
+                self.configure_logging()
+                self.loger.debug('Got the following number %s', selected_index)
             except ValueError:
                 print('\nYou must enter an integer number!\n')
                 raise SystemExit()
 
             try:
                 location = locations[selected_index - 1]
+                self.configure_logging()
+                self.loger.debug('Got the following location %s', location)
             except IndexError:
                 print('\nThe number you entered is too large!\n')
                 raise SystemExit()
@@ -268,12 +275,16 @@ class GisWeatherProvider(WeatherProvider):
 
             try:
                 selected_index = int(input('Please select location: '))
+                self.configure_logging()
+                self.loger.debug('Got the following number %s', selected_index)
             except ValueError:
                 print('\nYou must enter an integer number!\n')
                 raise SystemExit()
 
             try:
                 location = locations[selected_index - 1]
+                self.configure_logging()
+                self.loger.debug('Got the following location %s', location)
             except IndexError:
                 print('\nThe number you entered is too large!\n')
                 raise SystemExit()
@@ -352,12 +363,16 @@ class SinWeatherProvider(WeatherProvider):
 
             try:
                 selected_index = int(input('Please select location: '))
+                self.configure_logging()
+                self.loger.debug('Got the following number %s', selected_index)
             except ValueError:
                 print('\nYou must enter an integer number!\n')
                 raise SystemExit()
 
             try:
                 location = locations[selected_index - 1]
+                self.configure_logging()
+                self.loger.debug('Got the following location %s', location)
             except IndexError:
                 print('\nThe number you entered is too large!\n')
                 raise SystemExit()

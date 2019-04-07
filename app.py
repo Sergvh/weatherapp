@@ -3,14 +3,23 @@
 import html
 from argparse import ArgumentParser
 import sys
+import logging
 
 from providermanager import ProviderManager
 from commandsmanager import CommandsManager
+import config
 
 
 class App:
     """Weather agregator aplication
      """
+
+    loger = logging.getLogger(__name__)
+
+    LOG_LEVEL_MAP = {0: logging.WARNING,
+                     1: logging.INFO,
+                     2: logging.DEBUG}
+
     def __init__(self):
         self.arg_parser = self._arg_parse()
         self.providermanager = ProviderManager()
@@ -34,7 +43,29 @@ class App:
         arg_parser.add_argument('-c', '--config', nargs='?',
                                 help="use -c [Service name] for configure",
                                 default='')
+
+        arg_parser.add_argument(
+            '-v', '--verbose',
+            action='count',
+            dest='verbose_level',
+            default=config.DEFAULT_VERBOSE_LEVEL,
+            help='Increase verbosity of logging output level')
         return arg_parser
+
+    def configure_logging(self):
+        """Ceate logging handlers for any log output
+        """
+
+        root_logger = logging.getLogger('')
+        root_logger.setLevel(logging.DEBUG)
+
+        console = logging.StreamHandler()
+        console_level = self.LOG_LEVEL_MAP.get(self.options.verbose_level,
+                                               logging.WARNING)
+        console.setLevel(console_level)
+        formatter = logging.Formatter(config.DEFAULT_MESSAGE_FORMAT)
+        console.setFormatter(formatter)
+        root_logger.addHandler(console)
 
     @staticmethod
     def produce_output(title, location, info):
@@ -56,6 +87,8 @@ class App:
         """
 
         self.options, remaining_args = self.arg_parser.parse_known_args(argv)
+        self.configure_logging()
+        self.loger.debug('Got the following args %s', argv)
         command_name = self.options.command
 
         if not command_name:
