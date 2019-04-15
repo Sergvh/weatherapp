@@ -4,7 +4,7 @@ from urllib.parse import quote
 from bs4 import BeautifulSoup
 
 import config
-from abstract.provider import WeatherProvider
+from weatherapp.core.abstract import WeatherProvider
 
 
 class AccuWeatherProvider(WeatherProvider):

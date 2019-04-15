@@ -2,40 +2,15 @@
 """
 
 import abc
-import argparse
 import configparser
-from pathlib import Path
+import logging
 import hashlib
 import time
 from urllib.request import urlopen, Request
-import logging
+from pathlib import Path
 
-import config
-
-
-class Command(abc.ABC):
-    """Base class for commands
-
-    :param app: Main application instance.
-    :type app: app.App
-    """
-
-    def __init__(self, app):
-        self.app = app
-
-    @staticmethod
-    def get_parser():
-        """Initialize argument parser for command
-        """
-
-        parser = argparse.ArgumentParser()
-        return parser
-
-    @abc.abstractmethod
-    def run(self, argv):
-        """Invoked by application when the command is run
-        Should be overriden in subclass
-        """
+from weatherapp.core import config
+from weatherapp.core.abstract.command import Command
 
 
 class WeatherProvider(Command):
@@ -239,4 +214,3 @@ class WeatherProvider(Command):
         content = self.get_page_source(self.url, refresh=refresh)
 
         return self.get_weather_info(content, refresh=refresh)
-
