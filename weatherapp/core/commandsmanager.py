@@ -1,4 +1,4 @@
-from commands import Configurate, Help, Providers
+from weatherapp.core.commands import Configurate, Help, Providers
 
 
 class CommandsManager:

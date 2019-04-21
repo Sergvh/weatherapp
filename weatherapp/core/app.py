@@ -7,7 +7,7 @@ import logging
 
 from weatherapp.core.providermanager import ProviderManager
 from weatherapp.core.commandsmanager import CommandsManager
-import weatherapp.core.config
+from weatherapp.core import config
 
 
 class App:

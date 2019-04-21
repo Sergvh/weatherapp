@@ -1,4 +1,4 @@
-from providers import AccuWeatherProvider, Rp5WeatherProvider, \
+from weatherapp.core.providers import AccuWeatherProvider, Rp5WeatherProvider, \
                       GisWeatherProvider, SinWeatherProvider
 
 

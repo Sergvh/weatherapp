@@ -27,8 +27,8 @@ class WeatherProvider(Command):
         self.location = location
         self.url = url
         self.LOG_LEVEL_MAP = {0: logging.WARNING,
-                         1: logging.INFO,
-                         2: logging.DEBUG}
+                              1: logging.INFO,
+                              2: logging.DEBUG}
 
     def configure_logging(self):
         """Ceate logging handlers for any log output
@@ -50,12 +50,10 @@ class WeatherProvider(Command):
         """Performs provider configuration
         """
 
-
     @abc.abstractmethod
     def get_name(self):
         """Provider name
         """
-
 
     @abc.abstractmethod
     def get_weather_info(self, content):

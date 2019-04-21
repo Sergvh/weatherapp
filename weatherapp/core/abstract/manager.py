@@ -15,22 +15,22 @@ class Manager(abc.ABC):
         :param name: command name.
         :type name: str
         :param command: command class
-        :typw command: subtype of weatherapp.abstract.Command
+        :type command: subtype of weatherapp.abstract.Command
         """
 
-    @abs.abstractmethod
+    @abc.abstractmethod
     def get(self, name):
         """Gets command from manager by name
         :param name: command name.
         :type name: str
         """
 
-    @abs.abstractmethod
+    @abc.abstractmethod
     def __len__(self):
         """ Returns count of all existing commands
         """
 
-    @abs.abstractmethod
+    @abc.abstractmethod
     def __contains__(self, name):
         """Returns True or False if command exists in manager
 
@@ -41,7 +41,7 @@ class Manager(abc.ABC):
         :type name: str
         """
 
-    @abs.abstractmethod
+    @abc.abstractmethod
     def __getitem__(self, name):
         """ Gets command by name
 
