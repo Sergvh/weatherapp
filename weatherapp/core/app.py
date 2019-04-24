@@ -1,3 +1,5 @@
+#!/usr/bin/env
+
 """Main application module"""
 
 import html
