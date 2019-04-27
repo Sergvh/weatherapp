@@ -1,5 +1,6 @@
 """Class for sinoptik.ua provider
 """
+import sys
 
 from bs4 import BeautifulSoup
 
@@ -48,14 +49,14 @@ class SinWeatherProvider(WeatherProvider):
         provider = self.name
         while locations:
             for index, location in enumerate(locations):
-                print(f'{index + 1}. {location[0]}')
+                sys.stdout.write(f'{index + 1}. {location[0]} \n')
 
             try:
                 selected_index = int(input('Please select location: '))
                 self.configure_logging()
                 self.loger.debug('Got the following number %s', selected_index)
             except ValueError:
-                print('\nYou must enter an integer number!\n')
+                sys.stdout.write('\nYou must enter an integer number!\n')
                 raise SystemExit()
 
             try:
@@ -63,7 +64,7 @@ class SinWeatherProvider(WeatherProvider):
                 self.configure_logging()
                 self.loger.debug('Got the following location %s', location)
             except IndexError:
-                print('\nThe number you entered is too large!\n')
+                sys.stdout.write('\nThe number you entered is too large!\n')
                 raise SystemExit()
 
             locations = self.get_sin_locations(location[1])

@@ -6,6 +6,7 @@ import configparser
 import logging
 import hashlib
 import time
+import sys
 from urllib.request import urlopen, Request
 from pathlib import Path
 
@@ -93,8 +94,8 @@ class WeatherProvider(Command):
         try:
             configuration.read(self.get_configuration_file())
         except configparser.Error:
-            print(f'Bad configuration file.'
-                  f' Please reconfigurate your provider {self.name}')
+            sys.stdout.write(f'Bad configuration file.Please '
+                             f'reconfigurate your provider {self.name}')
 
         if self.get_name() in configuration. sections():
             location_config = configuration[self.get_name()]
@@ -122,7 +123,7 @@ class WeatherProvider(Command):
         :param url: Prefered location url
         :param type: str
         """
-        print(provider+'   '+name+'   '+url)
+
         parser = configparser.ConfigParser()
 
         config_file = self.get_configuration_file()
