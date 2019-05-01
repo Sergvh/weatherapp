@@ -128,7 +128,7 @@ class App:
         """Execute all available weather providers
         """
 
-        for provider in self.providermanager._providers.values():
+        for name, provider in self.providermanager:
             provider = provider(self)
             self.produce_output(provider.title,
                                 provider.location,

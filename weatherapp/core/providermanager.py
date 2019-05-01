@@ -1,8 +1,10 @@
 from weatherapp.core.providers import AccuWeatherProvider, Rp5WeatherProvider, \
                       GisWeatherProvider, SinWeatherProvider
 
+from weatherapp.core.abstract import Manager
 
-class ProviderManager:
+
+class ProviderManager(Manager):
     """Discovers registered providers and loads them
     """
 
@@ -52,3 +54,7 @@ class ProviderManager:
         """
 
         return self._providers[name]
+
+    def __iter__(self):
+        for key, value in self._providers.items():
+            yield key, value

@@ -1,7 +1,9 @@
 from weatherapp.core.commands import Configurate, Help, Providers
 
+from weatherapp.core.abstract import Manager
 
-class CommandsManager:
+
+class CommandsManager(Manager):
     """Discovers registered commands and loads them
     """
 
@@ -50,3 +52,7 @@ class CommandsManager:
         """
 
         return self.commands[name]
+
+    def __iter__(self):
+        for key, value in self.commands.items():
+            yield key, value
