@@ -15,6 +15,4 @@ class Formatter(abc.ABC):
         :param data: iterable data source, one tuple per object with values
                      in order of column names
         :type data: list or tuple
-        :param stdout: output stream where data should be written
-        :type stdout: sys.stdout or file like object
         """

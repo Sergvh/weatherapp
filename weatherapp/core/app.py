@@ -52,7 +52,7 @@ class App:
                                 default='')
         arg_parser.add_argument('-f', '--formatter',
                                 action='store',
-                                default='table',
+                                default='list',
                                 help="Output default to table. There are 'list'"
                                      "and 'scv'")
         arg_parser.add_argument(

@@ -21,7 +21,6 @@ class TableFormatter(Formatter):
 
         for column, values in zip(column_names, (data.keys(), data.values())):
             if any(values):
-                #import pdb; pdb.set_trace()
                 pt.add_column(column, list(values))
 
         pt.align = 'l'
