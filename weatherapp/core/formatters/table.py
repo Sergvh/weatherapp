@@ -24,5 +24,6 @@ class TableFormatter(Formatter):
                 pt.add_column(column, list(values))
 
         pt.align = 'l'
-        pt.padding_width = 1
+        pt.padding_width = 3
+
         return pt.get_string()

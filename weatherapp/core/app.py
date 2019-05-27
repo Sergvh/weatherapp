@@ -1,24 +1,19 @@
-#!/usr/bin/env python3
-#-*- coding: UTF-8 -*-
-
-"""Main application module"""
-
-from argparse import ArgumentParser
 import sys
 import logging
+from argparse import ArgumentParser
 
-from weatherapp.core.providermanager import ProviderManager
-from weatherapp.core.commandsmanager import CommandsManager
 from weatherapp.core.formatters import TableFormatter
 from weatherapp.core import config
+from weatherapp.core.commandsmanager import CommandsManager
+from weatherapp.core.providermanager import ProviderManager
 
 
 class App:
-    """Weather agregator aplication
-     """
 
-    loger = logging.getLogger(__name__)
+    """ Weather aggregator application.
+    """
 
+    logger = logging.getLogger(__name__)
     LOG_LEVEL_MAP = {0: logging.WARNING,
                      1: logging.INFO,
                      2: logging.DEBUG}
@@ -27,62 +22,54 @@ class App:
         self.stdin = stdin or sys.stdin
         self.stdout = stdout or sys.stdout
         self.stderr = stderr or sys.stderr
-        self.arg_parser = self._arg_parse()
+        self.arg_parser = self._arg_parser()
         self.providermanager = ProviderManager()
-        self.commandsmanager = CommandsManager()
-        self.formatters = self.load_formaters()
+        self.commandmanager = CommandsManager()
+        self.formatters = self._load_formatters()
 
     @staticmethod
-    def _arg_parse():
-        """Initialize argument parser
+    def _arg_parser():
+        """ Initialize argument parser.
         """
 
         arg_parser = ArgumentParser(add_help=False)
-        arg_parser.add_argument('-cc', '--clearcache', nargs='?',
-                                help="use -cc [Service name] to clear cache "
-                                "in file", default='')
-        arg_parser.add_argument('-s', '--save', nargs='?',
-                                help="use -s [Service name] for save data "
-                                "in file", default='')
-        arg_parser.add_argument('command', help='Service name', nargs='?')
-        arg_parser.add_argument('-r', '--refresh', help='Update caches',
+        arg_parser.add_argument('command', help='Command', nargs='?')
+        arg_parser.add_argument('--refresh', help='Bypass caches',
                                 action='store_true')
-        arg_parser.add_argument('-c', '--config', nargs='?',
-                                help="use -c [Service name] for configure",
-                                default='')
-        arg_parser.add_argument('-f', '--formatter',
-                                action='store',
-                                default='list',
-                                help="Output default to table. There are 'list'"
-                                     "and 'scv'")
+
+        arg_parser.add_argument(
+            '-f', '--formatter',
+            action='store',
+            default='table',
+            help="Output format, defaults to table")
+
         arg_parser.add_argument(
             '-v', '--verbose',
             action='count',
             dest='verbose_level',
             default=config.DEFAULT_VERBOSE_LEVEL,
-            help='Increase verbosity of logging output level')
+            help='Increase verbosity of output.')
 
         arg_parser.add_argument(
-            '-d', '--debug',
+            '--debug',
             action='store_true',
             default=False,
-            help='Show errors.')
+            help='Show tracebacks on errors.')
 
         return arg_parser
 
     @staticmethod
-    def load_formaters():
+    def _load_formatters():
         return {'table': TableFormatter}
 
     def configure_logging(self):
-        """Ceate logging handlers for any log output
+        """ Create logging handlers for any log output.
         """
 
         root_logger = logging.getLogger('')
         root_logger.setLevel(logging.DEBUG)
 
-        handler = logging.StreamHandler()
-        console = handler
+        console = logging.StreamHandler()
         console_level = self.LOG_LEVEL_MAP.get(self.options.verbose_level,
                                                logging.WARNING)
         console.setLevel(console_level)
@@ -91,7 +78,7 @@ class App:
         root_logger.addHandler(console)
 
     def produce_output(self, title, location, data):
-        """Prints result
+        """ Print results.
         """
 
         formatter = self.formatters.get(self.options.formatter, 'table')()
@@ -101,31 +88,31 @@ class App:
         self.stdout.write('\n')
 
     def run_command(self, name, argv):
-        """Run specified command
+        """ Run command
         """
-
-        command = self.commandsmanager.get(name)
+        command = self.commandmanager.get(name)
         try:
             command(self).run(argv)
         except Exception:
-            msg = "Error during command: %s execution"
+            msg = "Error during command: %s run"
             if self.options.debug:
-                self.loger.exception(msg, name)
+                self.logger.exception(msg, name)
             else:
-                self.loger.error(msg, name)
+                self.logger.error(msg, name)
 
     def run_provider(self, name, argv):
-        """Execute specified  weather provider
+        """ Run specified provider
         """
 
         provider = self.providermanager.get(name)
-        provider = provider(self)
-        self.produce_output(provider.title,
-                            provider.location,
-                            provider.run(argv))
+        if provider:
+            provider = provider(self)
+            self.produce_output(provider.title,
+                                provider.location,
+                                provider.run(argv))
 
     def run_providers(self, argv):
-        """Execute all available weather providers
+        """ Execute all available providers.
         """
 
         for name, provider in self.providermanager:
@@ -134,29 +121,25 @@ class App:
                                 provider.location,
                                 provider.run(argv))
 
-    def run(self, argv):
-        """Run application
 
-        :param argv: List of passed arguments
+    def run(self, argv):
+        """ Run application.
+        :param argv: list of passed arguments
         """
 
         self.options, remaining_args = self.arg_parser.parse_known_args(argv)
         self.configure_logging()
-        self.loger.debug('Got the following args %s', argv)
-        command_name = self.options.command
 
+        command_name = self.options.command
         if not command_name:
-            #run all weather providers by default
+            # run all providers
             return self.run_providers(remaining_args)
 
-        elif command_name in self.providermanager:
-            #run specific provider
-            return self.run_provider(command_name, remaining_args)
-
-        elif command_name in self.commandsmanager:
-            #run specific command
+        if command_name in self.commandmanager:
             return self.run_command(command_name, remaining_args)
 
+        if command_name in self.providermanager:
+            return self.run_provider(command_name, remaining_args)
 
 
 def main(argv=sys.argv[1:]):
